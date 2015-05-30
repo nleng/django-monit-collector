@@ -1,4 +1,4 @@
-# django-pymonit
+# django-monit-collector
 
 This is a django project, which collects data from <a href="https://mmonit.com/monit/" target="_blank">monit</a> instances on one or multiple servers, stores them and visualizes them using <a href="http://getbootstrap.com/" target="_blank">bootstrap</a> and the javascript library <a href="http://dygraphs.com/" target="_blank">dygraphs</a>. Example website: http://monitcollector.cfs-me-research.net/monitcollector/server/5/
 
