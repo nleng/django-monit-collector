@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load monitcollector_tags %}
+
+
+{% block additinal_nav %}
+<li><a href="{% url 'monitcollector.views.server' server.id %}"> Server </a></li>
+{% endblock %}
+
+{% block jumbotron %}
+<h1 style="font-size:50px;">
+	Process 
+</h1>
+<h3>
+	Process {{ process.name }} has status {{ process.status }} with uptime {{ process.uptime|time_str }}
+</h3>
+{% endblock %}
+
+{% block content %}
+{% if process_found %}
+<div class="row clearfix">
+  <div class="col-md-12 column">
+    <p class="helper">Zoom: click-drag --- Pan: shift-click-drag --- Restore zoom level: double-click</p>
+    <div class="col-lg-6 col-md-6 column">  
+      <div id="graph_cpu" class="graph" style="width:100%;"></div>
+    </div>
+    <div class="col-lg-6 col-md-6 column">  
+      <div id="graph_mem" class="graph" style="width:100%;"></div>
+    </div>
+  </div>
+</div>
+<div class="row clearfix marginTop">  
+  <div class="col-md-12 column">
+     {% include "monitcollector/includes/process_table.html" %}
+  </div>
+</div>
+<div class="row clearfix">
+{% if this_server %}
+    {% if request.user.is_staff %}
+        {% include "monitcollector/includes/process_buttons.html" %}
+    {% else %}
+      <div class="col-md-12 column" style="text-align: center;">
+        <h4> These buttons only work for the server, where the monitcollector app is running. </h4>
+        <h4> Also, these buttons don't work in this demo of course. :p </h4>
+        <div class="col-md-3 column">
+          <button type="submit" class="btn btn-primary btn-lg"> Start service </button>
+        </div>
+        <div class="col-md-3 column">
+          <button type="submit" class="btn btn-primary btn-lg"> Stop service </button>
+        </div>
+        <div class="col-md-3 column">
+          <button type="submit" class="btn btn-primary btn-lg"> Restart service </button>
+        </div>
+        <div class="col-md-3 column">
+          <button type="submit" class="btn btn-primary btn-lg"> {% if process.monitor == 0 %}Enable monitoring{% else %}Disable monitoring{% endif %} </button>
+        </div>
+      </div>
+    {% endif %}
+{% else %}
+  <div class="col-md-12 column marginTop" style="text-align: center;">
+    <h4> Starting and stopping processes only works for the server where the monitcollector app is installed. </h4>
+  </div>
+{% endif %}
+    
+</div>
+{% else %}
+<div class="row clearfix">
+  <div class="col-md-12 column">
+    <p>Something went wrong. Process not found.</p>
+  </div>
+</div>
+{% endif %}
+
+
+<script src="{% static 'js/jquery-2.1.4.min.js'%}"></script>
+<script src="{% static 'js/dygraph-combined.js'%}"></script>
+<script src="{% static 'js/csrf.js'%}"></script>
+{% if process.date %}
+<script>
+ $(document).ready(function () {
+      var update_period = 1000*{{monit_update_period}};
+      var data_cpu = [];
+      var dates = {{process.date}};
+      var y1 = {{process.cpu_percenttotal}};
+      for (i = 0; i < dates.length; i++)
+        data_cpu.push([new Date(dates[i]*1000.), y1[i]]);
+      var graph_cpu = new Dygraph(document.getElementById("graph_cpu"), data_cpu,
+                          {
+														legend: 'always', // show always
+														labelsDivWidth: '140', // default 250
+                            labelsSeparateLines: true,
+														ylabel: 'CPU usage (in %)',
+														xlabel: 'Time',
+                            drawPoints: true,
+                            //showRoller: true,  // to average over values (?)
+                            //valueRange: [0.0, 1.2],
+                            labels: ['Time', '{{process.name}} CPU usage'],
+														axisLabelColor: '#CCC',
+														axisLineColor: '#CCC',
+														colors: ["#7FDD00"]
+                          });
+      var data_mem = [];
+      y1 = {{process.memory_percenttotal}};
+      var y2 = {{process.memory_kilobytetotal}};
+      for (i = 0; i < dates.length; i++)
+        data_mem.push([new Date(dates[i]*1000.), y1[i], y2[i]/1.e6]);
+      var graph_mem = new Dygraph(document.getElementById("graph_mem"), data_mem,
+                          {
+														legend: 'always', // show always
+														labelsDivWidth: '140', // default 250
+                            labelsSeparateLines: true,
+														ylabel: 'Memonry usage (in % or GB)',
+														xlabel: 'Time',
+                            drawPoints: true,
+                            //showRoller: true,  // to average over values (?)
+                            //valueRange: [0.0, 1.2],
+                            labels: ['Time', 'memory in %', 'memory in GB'],
+														axisLabelColor: '#CCC',
+														axisLineColor: '#CCC',
+														colors: ["#DAA520", "#00FFFF", "#7FDD00", "#EE5500"]
+                          });
+      // It sucks that these things aren't objects, and we need to store state in window.
+      window.intervalId = setInterval(function() {
+            $.post("{% url 'monitcollector.views.load_process_data' server.id process.name %}", function(data) {
+                var date = new Date(JSON.parse(data.date)*1000.);
+                if (date>data_cpu[data_cpu.length-1][0]) {
+                    data_cpu.push([date, JSON.parse(data.cpu_percenttotal)]);
+                    graph_cpu.updateOptions( { 'file': data_cpu } );
+
+                    data_mem.push([date, JSON.parse(data.memory_percenttotal), JSON.parse(data.memory_kilobytetotal)/1.e6]);
+                    graph_mem.updateOptions( { 'file': data_mem } );
+                }
+            });
+            
+      }, update_period);
+      window.intervalId = setInterval(function() {
+        $.post("{% url 'monitcollector.views.load_process_table' server.id process.name %}", function(data) {
+            $( "#process_table" ).replaceWith( data.table_html );
+        });
+      }, 2000);
+    }
+);
+</script>
+{% csrf_token %}
+{% endif %}
+
+
+{% endblock %}
