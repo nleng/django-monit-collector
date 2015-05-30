@@ -262,8 +262,8 @@ def collect_data(xml_str):
                 process.memory_kilobytetotal_last = int(get_value(service, "memory", "kilobytetotal"))
                 process.memory_kilobytetotal = json_list_append(process.memory_kilobytetotal, process.memory_kilobytetotal_last)
             process.save()
+    remove_old_services(server, reporting_services)
     return True
-    # remove_old_services(server, reporting_services)
 
 
 ########## who needs groups? ##########
