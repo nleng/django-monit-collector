@@ -17,6 +17,8 @@ def timestamp_to_date(timestamp):
 
 @register.filter
 def time_class(timestamp):
+    if not isinstance(timestamp, int):
+        return ""
     if int(time.time()) > int(timestamp) + 3*monit_update_period:
         return "danger"
     return ""
