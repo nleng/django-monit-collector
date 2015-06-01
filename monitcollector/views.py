@@ -35,7 +35,7 @@ def collector(request):
         return HttpResponse('wrong data format')
     return HttpResponse('ok')
    
-# @staff_member_required
+@staff_member_required
 def dashboard(request):
     if Server.objects.all().count() > 0:
         servers = Server.objects.all().order_by('localhostname')
@@ -43,7 +43,7 @@ def dashboard(request):
     else:
        return render(request, 'monitcollector/dashboard.html',{'server_found': False})
 
-# @staff_member_required
+@staff_member_required
 def server(request, server_id):
     # time = datetime.strptime(x, "%Y-%m-%d %H:%M:%S")
     # timedelta = (datetime.now()-load.date).total_seconds()*1000.
@@ -55,7 +55,7 @@ def server(request, server_id):
     except:
         return render(request, 'monitcollector/dashboard.html',{'server_found': False})
 
-# @staff_member_required
+@staff_member_required
 def process(request, server_id, process_name):
   try:
     server = Server.objects.get(id=server_id)
