@@ -17,6 +17,8 @@ def timestamp_to_date(timestamp):
 
 @register.filter
 def time_class(timestamp):
+    if not isinstance(timestamp, int):
+        return ""
     if int(time.time()) > int(timestamp) + 3*monit_update_period:
         return "danger"
     return ""
@@ -57,32 +59,21 @@ def status_class(status, monitor):
     return 'red'
 
 @register.filter
-def last_item(item_list_str):
-  if not isinstance(item_list_str, basestring):
-    return ""
-  item_list = item_list_str.strip('[]').split()
-  if len(item_list) <1:
-    return ""
-  return item_list[-1]
-
-@register.filter
 def in_MB(value):
-    # if not isinstance(value, float) and not isinstance(value, basestring):
-    if value == "":
+    if not isinstance(value, (int, basestring)):
         return ""
     return str(round(float(value)/1.e3, 1))+" MB"
 
 @register.filter
 def in_GB(value):
-    if value == "":
+    if not isinstance(value, (int, basestring)):
         return ""
     return str(round(float(value)/1.e6, 1))+" GB"
 
 @register.filter
-def procent(value):
-    if value == "":
+def percent(value):
+    if not isinstance(value, (float, basestring)):
         return ""
-    return str(value)+"%"
-
+    return str(round(value, 1))+"%"
 
 

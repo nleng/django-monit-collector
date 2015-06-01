@@ -1,8 +1,6 @@
-# django-pymonit
+# django-monit-collector
 
 This is a django project, which collects data from <a href="https://mmonit.com/monit/" target="_blank">monit</a> instances on one or multiple servers, stores them and visualizes them using <a href="http://getbootstrap.com/" target="_blank">bootstrap</a> and the javascript library <a href="http://dygraphs.com/" target="_blank">dygraphs</a>. Example website: http://monitcollector.cfs-me-research.net/monitcollector/server/5/
-
-THIS IS STILL IN DEVELOPMENT
 
 ### Features
 - Collects and parses monit xml data from one or multiple servers. 
@@ -14,7 +12,15 @@ THIS IS STILL IN DEVELOPMENT
 
 ### Installation
 
-I'll make it pip-installable as soon as I have time to. So far you would have to download the repository. 
+Just install it via pip:
+```
+pip install django-monit-collector
+```
+Or clone the repository if you want to modify the code:
+```
+git clone https://github.com/nleng/django-monit-collector
+```
+
 Add 'monitcollector' to your installed apps in settings.py:
 ```
 INSTALLED_APPS = [

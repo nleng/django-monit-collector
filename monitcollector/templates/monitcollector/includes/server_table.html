@@ -19,8 +19,8 @@
         <td class="{{ process.status|status_class:process.monitor }}">{{ process.status|status_str:process.monitor }}</td> 
         <td>{{ process.uptime|time_str }}</td>
         <td>{% if process.children %}{{ process.children }}{% endif %}</td>
-        <td>{{ process.cpu_percenttotal|last_item|procent }}</td>
-        <td>{{ process.memory_percenttotal|last_item|procent }} {% if process.memory_kilobytetotal %}[{{ process.memory_kilobytetotal|last_item|in_MB}}] {% endif %}</td>
+        <td>{{ process.cpu_percenttotal_last|percent }}</td>
+        <td>{{ process.memory_percenttotal_last|percent }} {% if process.memory_kilobytetotal %}[{{ process.memory_kilobytetotal_last|in_MB}}] {% endif %}</td>
       </tr>
     
     {% endfor%}

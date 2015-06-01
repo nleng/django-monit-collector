@@ -38,6 +38,17 @@ $monitored[1] = 'Yes';
 $monitored[2] = 'Init';
 """
 
+def collect_data(xml_str):
+    # only ready data if it has a monit id
+    try:
+        xmldoc = minidom.parseString(xml_str)
+        monit_id = xmldoc.getElementsByTagName('monit')[0].attributes["id"].value
+    except:
+        return False
+    
+    Server.update(xmldoc, monit_id)
+    return True
+
 def decode_status(status):
     errors_messages = ['Ok', 'Checksum failed', 'Resource limit matched', 'Timeout', 'Timestamp failed', 'Size failed',
               'Connection failed', 'Permission failed', 'UID failed', 'GID failed', 'Does not exist',
@@ -57,6 +68,46 @@ def decode_status(status):
         return "running"
     return out_str
     
+def get_value(xmldoc, parent_element="", child_element="", attribute=""):
+  try:
+    if parent_element == "" and attribute == "":
+      element = xmldoc.childNodes[0]
+    elif parent_element == "":
+      element = xmldoc
+    elif child_element == "":
+      # first index, because there could be multiple Elements with that tag, second index because there could be multiple childNodes
+      element = xmldoc.getElementsByTagName(parent_element)[0].childNodes[0]
+    else:
+      element = xmldoc.getElementsByTagName(parent_element)[0].getElementsByTagName(child_element)[0].childNodes[0]
+    if attribute == "":
+      return element.nodeValue
+    else:
+      return element.attributes[attribute].value
+  except:
+    # monit sometimes does not pass cpu/memory info (e.g. if it sends event messages), so we have to filter it
+    return "none"
+
+def json_list_append(json_list, value):
+    try:
+      new_list = json.loads(json_list)
+      new_list.append(value)
+    except:
+      new_list = [value]
+    # maximum allowed table size, if monit reports every monite, this stores data for one week
+    maximum_table_length = int(maximum_store_days*24.*60.*60./monit_update_period)
+    # just remove the first one, should be better in future
+    if len(new_list) > maximum_table_length:
+      new_list = new_list[-int(maximum_table_length):]
+    return json.dumps(new_list)
+
+def remove_old_services(server, service_list):
+    if server.system.name not in service_list:
+        server.system.delete()
+    processes = server.process_set.all()
+    for process in processes:
+        if process.name not in service_list:
+            process.delete()
+
 
 class Server(models.Model):
     monit_id = models.CharField(max_length=32, unique=True)
@@ -64,6 +115,28 @@ class Server(models.Model):
     localhostname = models.TextField(null=True)
     uptime = models.IntegerField(null=True)
     address = models.TextField(null=True)
+    
+    @classmethod
+    def update(cls, xmldoc, monit_id):
+        reporting_services = []
+        server, created = cls.objects.get_or_create(monit_id=monit_id)
+        server.monit_version = xmldoc.getElementsByTagName('monit')[0].attributes["version"].value
+        server.localhostname = get_value(xmldoc, "localhostname", "")
+        server.uptime = get_value(xmldoc, "server", "uptime")
+        server.address = get_value(xmldoc, "server", "address")
+        server.save()
+        Platform.update(xmldoc, server)
+        for service in xmldoc.getElementsByTagName('services')[0].getElementsByTagName('service'):
+            service_type = get_value(service, "type", "")
+            service_name = get_value(service, "", "", "name")
+            reporting_services.append(service_name)
+            # properties for type=5 (system)
+            if service_type == '5':
+                System.update(xmldoc, server, service)
+            # we call everything else a Process, not only type=3
+            else:
+                Process.update(xmldoc, server, service)
+        remove_old_services(server, reporting_services)
 
 class Platform(models.Model):
     server = models.OneToOneField('Server')
@@ -74,6 +147,17 @@ class Platform(models.Model):
     cpu = models.IntegerField(null=True)
     memory = models.IntegerField(null=True)
     swap = models.IntegerField(null=True)
+    @classmethod
+    def update(cls, xmldoc, server):
+        platform, created = Platform.objects.get_or_create(server=server)
+        platform.name = get_value(xmldoc, "platform", "name")
+        platform.release = get_value(xmldoc, "platform", "release")
+        platform.version = get_value(xmldoc, "platform", "version")
+        platform.machine = get_value(xmldoc, "platform", "machine")
+        platform.cpu = get_value(xmldoc, "platform", "cpu")
+        platform.memory = get_value(xmldoc, "platform", "memory")
+        platform.swap = get_value(xmldoc, "platform", "swap")
+        platform.save()
 
 # Service
 class Service(models.Model):
@@ -111,6 +195,39 @@ class System(Service):
     swap_kilobyte_last = models.PositiveIntegerField(null=True)
     swap_kilobyte = models.TextField(null=True)
     
+    @classmethod
+    def update(cls, xmldoc, server, service):
+        system, created = cls.objects.get_or_create(server=server)
+        system.name = get_value(service, "", "", "name")
+        system.status = decode_status(int(get_value(service, "status", "")))
+        system.status_hint = get_value(service, "status_hint", "")
+        system.monitor = get_value(service, "monitor", "")
+        system.monitormode = get_value(service, "monitormode", "")
+        system.pendingaction = get_value(service, "pendingaction", "")
+        if get_value(service, "load", "avg01") != "none":
+            system.date_last = int(time.time())
+            system.date = json_list_append(system.date, system.date_last)
+            system.load_avg01_last = float(get_value(service, "load", "avg01"))
+            system.load_avg01 = json_list_append(system.load_avg01, system.load_avg01_last)
+            system.load_avg05_last = float(get_value(service, "load", "avg05"))
+            system.load_avg05 = json_list_append(system.load_avg05, system.load_avg05_last)
+            system.load_avg15_last = float(get_value(service, "load", "avg15"))
+            system.load_avg15 = json_list_append(system.load_avg15,  system.load_avg15_last)
+            system.cpu_user_last = float(get_value(service, "cpu", "user"))
+            system.cpu_user = json_list_append(system.cpu_user, system.cpu_user_last)
+            system.cpu_system_last = float(get_value(service, "cpu", "system"))
+            system.cpu_system = json_list_append(system.cpu_system, system.cpu_system_last)
+            system.cpu_wait_last = float(get_value(service, "cpu", "wait"))
+            system.cpu_wait = json_list_append(system.cpu_wait, system.cpu_wait_last)
+            system.memory_percent_last = float(get_value(service, "memory", "percent"))
+            system.memory_percent = json_list_append(system.memory_percent, system.memory_percent_last)
+            system.memory_kilobyte_last = int(get_value(service, "memory", "kilobyte"))
+            system.memory_kilobyte = json_list_append(system.memory_kilobyte, system.memory_kilobyte_last)
+            system.swap_percent_last = float(get_value(service, "swap", "percent"))
+            system.swap_percent = json_list_append(system.swap_percent, system.swap_percent_last)
+            system.swap_kilobyte_last = int(get_value(service, "swap", "kilobyte"))
+            system.swap_kilobyte = json_list_append(system.swap_kilobyte, system.swap_kilobyte_last)
+        system.save()
 
 # we call everything else a Process, not only type=3
 class Process(Service):
@@ -128,143 +245,30 @@ class Process(Service):
     memory_kilobytetotal_last = models.PositiveIntegerField(null=True)
     memory_kilobytetotal = models.TextField(null=True)
     
-
-def get_value(xmldoc, parent_element="", child_element="", attribute=""):
-  try:
-    if parent_element == "" and attribute == "":
-      element = xmldoc.childNodes[0]
-    elif parent_element == "":
-      element = xmldoc
-    elif child_element == "":
-      # first index, because there could be multiple Elements with that tag, second index because there could be multiple childNodes
-      element = xmldoc.getElementsByTagName(parent_element)[0].childNodes[0]
-    else:
-      element = xmldoc.getElementsByTagName(parent_element)[0].getElementsByTagName(child_element)[0].childNodes[0]
-    if attribute == "":
-      return element.nodeValue
-    else:
-      return element.attributes[attribute].value
-  except:
-    # monit sometimes does not pass cpu/memory info (e.g. if it sends event messages), so we have to filter it
-    return "none"  
-
-def json_list_append(json_list, value):
-    try:
-      new_list = json.loads(json_list)
-      new_list.append(value)
-    except:
-      new_list = [value]
-    # maximum allowed table size, if monit reports every monite, this stores data for one week
-    maximum_table_length = int(maximum_store_days*24.*60.*60./monit_update_period)
-    # just remove the first one, should be better in future
-    if len(new_list) > maximum_table_length:
-      new_list = new_list[-int(maximum_table_length):]
-    return json.dumps(new_list)
-
-def remove_old_services(server, service_list):
-    if server.system.name not in service_list:
-        server.system.delete()
-    processes = server.process_set.all()
-    for process in processes:
-        if process.name not in service_list:
-            process.delete()
-
-def collect_data(xml_str):
-    # only ready data if it has a monit id
-    try:
-        xmldoc = minidom.parseString(xml_str)
-        monit_id = xmldoc.getElementsByTagName('monit')[0].attributes["id"].value
-    except:
-        return False
-    server, created = Server.objects.get_or_create(monit_id=monit_id)
-    server.monit_version = xmldoc.getElementsByTagName('monit')[0].attributes["version"].value
-    server.localhostname = get_value(xmldoc, "localhostname", "")
-    server.uptime = get_value(xmldoc, "server", "uptime")
-    # version gibts nur fuer monit oder platform!
-    server.address = get_value(xmldoc, "server", "address")
-    server.save()
-
-    # platform, no time dependency
-    platform, created = Platform.objects.get_or_create(server=server)
-    platform.name = get_value(xmldoc, "platform", "name")
-    platform.release = get_value(xmldoc, "platform", "release")
-    platform.version = get_value(xmldoc, "platform", "version")
-    platform.machine = get_value(xmldoc, "platform", "machine")
-    platform.cpu = get_value(xmldoc, "platform", "cpu")
-    platform.memory = get_value(xmldoc, "platform", "memory")
-    platform.swap = get_value(xmldoc, "platform", "swap")
-    platform.save()
-  
-    reporting_services = []
-    for service in xmldoc.getElementsByTagName('services')[0].getElementsByTagName('service'):
-        # properties for all services
-        service_type = get_value(service, "type", "")
+    @classmethod
+    def update(cls, xmldoc, server, service):
         service_name = get_value(service, "", "", "name")
-        reporting_services.append(service_name)
-        service_status = decode_status(int(get_value(service, "status", "")))
-        service_status_hint = get_value(service, "status_hint", "")
-        service_monitor = get_value(service, "monitor", "")
-        service_monitormode = get_value(service, "monitormode", "")
-        service_pendingaction = get_value(service, "pendingaction", "")
-        # properties for type=5 (system)
-        if service_type == '5':
-            system, created = System.objects.get_or_create(server=server)
-            system.name=service_name
-            system.status = service_status
-            system.status_hint = service_status_hint
-            system.monitor = service_monitor
-            system.monitormode = service_monitormode
-            system.pendingaction = service_pendingaction
-            if get_value(service, "load", "avg01") != "none":
-                system.date_last = int(time.time())
-                system.date = json_list_append(system.date, system.date_last)
-                system.load_avg01_last = float(get_value(service, "load", "avg01"))
-                system.load_avg01 = json_list_append(system.load_avg01, system.load_avg01_last)
-                system.load_avg05_last = float(get_value(service, "load", "avg05"))
-                system.load_avg05 = json_list_append(system.load_avg05, system.load_avg05_last)
-                system.load_avg15_last = float(get_value(service, "load", "avg15"))
-                system.load_avg15 = json_list_append(system.load_avg15,  system.load_avg15_last)
-                system.cpu_user_last = float(get_value(service, "cpu", "user"))
-                system.cpu_user = json_list_append(system.cpu_user, system.cpu_user_last)
-                system.cpu_system_last = float(get_value(service, "cpu", "system"))
-                system.cpu_system = json_list_append(system.cpu_system, system.cpu_system_last)
-                system.cpu_wait_last = float(get_value(service, "cpu", "wait"))
-                system.cpu_wait = json_list_append(system.cpu_wait, system.cpu_wait_last)
-                system.memory_percent_last = float(get_value(service, "memory", "percent"))
-                system.memory_percent = json_list_append(system.memory_percent, system.memory_percent_last)
-                system.memory_kilobyte_last = int(get_value(service, "memory", "kilobyte"))
-                system.memory_kilobyte = json_list_append(system.memory_kilobyte, system.memory_kilobyte_last)
-                system.swap_percent_last = float(get_value(service, "swap", "percent"))
-                system.swap_percent = json_list_append(system.swap_percent, system.swap_percent_last)
-                system.swap_kilobyte_last = int(get_value(service, "swap", "kilobyte"))
-                system.swap_kilobyte = json_list_append(system.swap_kilobyte, system.swap_kilobyte_last)
-            system.save()
-        # we call everything else a Process, not only type=3
-        else:
-            process, created = Process.objects.get_or_create(server=server,name=service_name)
-            process.status = service_status
-            process.status_hint = service_status_hint
-            process.monitor = service_monitor
-            process.monitormode = service_monitormode
-            process.pendingaction = service_pendingaction
-            if get_value(service, "cpu", "percent") != "none":
-                process.pid = get_value(service, "pid")
-                process.ppid = get_value(service, "ppid")
-                process.uptime = get_value(service, "uptime")
-                process.children = get_value(service, "children")
-                # needs less characters than datetime.now().ctime() or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                process.date_last = int(time.time())
-                process.date = json_list_append(process.date, process.date_last)
-                process.cpu_percenttotal_last = float(get_value(service, "cpu", "percenttotal"))
-                process.cpu_percenttotal = json_list_append(process.cpu_percenttotal, process.cpu_percenttotal_last)
-                process.memory_percenttotal_last = float(get_value(service, "memory", "percenttotal"))
-                process.memory_percenttotal = json_list_append(process.memory_percenttotal, process.memory_percenttotal_last)
-                process.memory_kilobytetotal_last = int(get_value(service, "memory", "kilobytetotal"))
-                process.memory_kilobytetotal = json_list_append(process.memory_kilobytetotal, process.memory_kilobytetotal_last)
-            process.save()
-    return True
-    # remove_old_services(server, reporting_services)
-
+        process, created = cls.objects.get_or_create(server=server,name=service_name)
+        process.status = decode_status(int(get_value(service, "status", "")))
+        process.status_hint = get_value(service, "status_hint", "")
+        process.monitor = get_value(service, "monitor", "")
+        process.monitormode = get_value(service, "monitormode", "")
+        process.pendingaction = get_value(service, "pendingaction", "")
+        if get_value(service, "cpu", "percent") != "none":
+            process.pid = get_value(service, "pid")
+            process.ppid = get_value(service, "ppid")
+            process.uptime = get_value(service, "uptime")
+            process.children = get_value(service, "children")
+            # needs less characters than datetime.now().ctime() or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            process.date_last = int(time.time())
+            process.date = json_list_append(process.date, process.date_last)
+            process.cpu_percenttotal_last = float(get_value(service, "cpu", "percenttotal"))
+            process.cpu_percenttotal = json_list_append(process.cpu_percenttotal, process.cpu_percenttotal_last)
+            process.memory_percenttotal_last = float(get_value(service, "memory", "percenttotal"))
+            process.memory_percenttotal = json_list_append(process.memory_percenttotal, process.memory_percenttotal_last)
+            process.memory_kilobytetotal_last = int(get_value(service, "memory", "kilobytetotal"))
+            process.memory_kilobytetotal = json_list_append(process.memory_kilobytetotal, process.memory_kilobytetotal_last)
+        process.save()
 
 ########## who needs groups? ##########
 
