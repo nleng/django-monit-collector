@@ -73,7 +73,7 @@ def process_action(request, server_id):
     server = Server.objects.get(id=server_id)
     process = server.process_set.get(name=process_name)
     ip_address = server.address
-    time_out = 5
+    time_out = 10
     try:
         # would only work for this server
         # subprocess.call(["monit", action, process_name])
@@ -90,7 +90,6 @@ def process_action(request, server_id):
             process.save()
         return redirect(reverse('monitcollector.views.process', kwargs={'server_id': server.id, 'process_name': process_name}))
     except:
-        error_message = """""" % ()
         return render(request, 'monitcollector/error.html', {'time_out': time_out, 'monit_user': monit_user, 'ip_address': ip_address, 'monit_port': monit_port, 'process_name': process_name})
 
     

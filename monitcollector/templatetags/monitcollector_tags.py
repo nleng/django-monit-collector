@@ -40,20 +40,21 @@ def time_str(uptime):
       return "%sd %sh %sm" % (days, hours, mins)
     return "%sy %sd %sh %sm" % (years, days, hours, mins)
 
+# does nothing at the moment!
 @register.filter
 def status_str(status, monitor):
-    if monitor == 0 and status not in ['starting...', 'stopping...', 'restarting...', 'disable monitoring...', 'enable monitoring...']:
-        return "Not monitored"
+    # if monitor == 0 and status not in ['starting...', 'stopping...', 'restarting...', 'disable monitoring...', 'enable monitoring...']:
+        # return "Not monitored"
     return status
 
 @register.filter
 def status_class(status, monitor):
     # has to be first
-    if monitor == 0 and status not in ['starting...', 'stopping...', 'restarting...', 'disable monitoring...', 'enable monitoring...']:
-        return 'blue'
+    # if monitor == 0 and status not in ['starting...', 'stopping...', 'restarting...', 'disable monitoring...', 'enable monitoring...']:
+        # return 'blue'
     if status == 'running':
         return 'green'
-    if status in ['starting...', 'stopping...', 'restarting...', 'disable monitoring...', 'enable monitoring...']:
+    if status in ['starting...', 'stopping...', 'restarting...']:
         return 'yellow'
     # else return error color
     return 'red'

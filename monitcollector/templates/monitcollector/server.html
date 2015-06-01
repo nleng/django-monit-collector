@@ -32,9 +32,7 @@
 
 <div class="row clearfix marginTop">
   <div class="col-md-12 column">
-    <div id="server_table" class="table-responsive">
         {% include "monitcollector/includes/server_table.html" %}
-    </div>
   </div>
 </div>
 
@@ -127,21 +125,20 @@
 																		"#B0C4DE", "#F0E68C"]
                           });
       window.intervalId = setInterval(function() {
-			$.post("{% url 'monitcollector.views.load_system_data' server.id %}", function(data) {
-                var date = new Date(JSON.parse(data.date)*1000.);
-                if (date>data_cpu[data_cpu.length-1][0]) {
-                    data_load.push([date, JSON.parse(data.load_avg01), JSON.parse(data.load_avg05), JSON.parse(data.load_avg15)]);
-                    graph_load.updateOptions( { 'file': data_load } );
+	  $.post("{% url 'monitcollector.views.load_system_data' server.id %}", function(data) {
+		  var date = new Date(JSON.parse(data.date)*1000.);
+		  if (date>data_cpu[data_cpu.length-1][0]) {
+		      data_load.push([date, JSON.parse(data.load_avg01), JSON.parse(data.load_avg05), JSON.parse(data.load_avg15)]);
+		      graph_load.updateOptions( { 'file': data_load } );
 
-                    data_cpu.push([date, JSON.parse(data.cpu_user), JSON.parse(data.cpu_system), JSON.parse(data.cpu_wait)]);
-                    graph_cpu.updateOptions( { 'file': data_cpu } );
-                
-                    data_mem.push([date, JSON.parse(data.memory_percent), JSON.parse(data.memory_kilobyte)/1.e6, JSON.parse(data.swap_percent), JSON.parse(data.swap_kilobyte)/1.e6]);
-                    graph_mem.updateOptions( { 'file': data_mem } );
-                    
-                    $( "#server_table" ).replaceWith( data.table_html );
-                }
-			});
+		      data_cpu.push([date, JSON.parse(data.cpu_user), JSON.parse(data.cpu_system), JSON.parse(data.cpu_wait)]);
+		      graph_cpu.updateOptions( { 'file': data_cpu } );
+		  
+		      data_mem.push([date, JSON.parse(data.memory_percent), JSON.parse(data.memory_kilobyte)/1.e6, JSON.parse(data.swap_percent), JSON.parse(data.swap_kilobyte)/1.e6]);
+		      graph_mem.updateOptions( { 'file': data_mem } );
+		      
+		  }
+	  });
       }, update_period);
       window.intervalId = setInterval(function() {
         $.post("{% url 'monitcollector.views.load_system_table' server.id %}", function(data) {

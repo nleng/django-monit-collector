@@ -9,13 +9,13 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-monit-collector',
-    version='0.5',
+    version='0.6',
     packages=['monitcollector'],
     include_package_data=True,
     license='BSD License',  # example license
     description='This app collects data from monit instances on one or multiple servers, stores them and visualizes them.',
     long_description=README,
-    url='http://monitcollector.cfs-me-research.net/monitcollector/server/5/',
+    url='http://monitcollector.cfs-me-research.net/monitcollector/',
     author='Nicor Lengert',
     author_email='nicorlengert@gmx.de',
     classifiers=[

@@ -1,6 +1,5 @@
 include LICENSE
 include README.md
-include gunicorn.sh
 recursive-include monitcollector/static *
 recursive-include monitcollector/templates *
 recursive-include monitcollector/templatetags *

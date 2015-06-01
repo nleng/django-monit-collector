@@ -2,6 +2,9 @@
 
 This is a django project, which collects data from <a href="https://mmonit.com/monit/" target="_blank">monit</a> instances on one or multiple servers, stores them and visualizes them using <a href="http://getbootstrap.com/" target="_blank">bootstrap</a> and the javascript library <a href="http://dygraphs.com/" target="_blank">dygraphs</a>. Example website: http://monitcollector.cfs-me-research.net/monitcollector/server/5/
 
+There is a very similar app for the server monitoring tool <a href="https://github.com/Supervisor/supervisor" target="_blank">supervisor</a> called <a href="https://github.com/nleng/djangovisor" target="_blank">djangovisor</a>.
+
+
 ### Features
 - Collects and parses monit xml data from one or multiple servers. 
 - Stores the data for a given time period. 
@@ -52,11 +55,11 @@ If you don't want to allow access from everywhere add "allow ip.address..." with
 The user and password have to be set in the settings.py:
 ```
 ENABLE_BUTTONS = True
-MONIT_USER = myuser
-MONIT_PASSWORD = mypassword
+MONIT_USER = youruser
+MONIT_PASSWORD = yourpassword
 MONIT_PORT = 2812
 ```
-You don't have to specify the port if you use the default port 2812. Also, the port must not me blocked by the firefall, e.g. 
+You don't have to specify the port if you use the default port 2812. Also, the port must not me blocked by the firewall, e.g. 
 ```
 ufw allow 2812
 ```
