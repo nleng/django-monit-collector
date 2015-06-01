@@ -73,7 +73,7 @@ def process_action(request, server_id):
     server = Server.objects.get(id=server_id)
     process = server.process_set.get(name=process_name)
     ip_address = server.address
-    time_out = 10
+    time_out = 15
     try:
         # would only work for this server
         # subprocess.call(["monit", action, process_name])
