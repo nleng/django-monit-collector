@@ -38,6 +38,11 @@ MONIT_UPDATE_PERIOD = 60
 # maximum days to store data
 MAXIMUM_STORE_DAYS = 7.
 
+ENABLE_BUTTONS = True
+MONIT_USER = "your_user"
+MONIT_PASSWORD = "your_password"
+MONIT_PORT = 2812
+
 
 # Application definition
 

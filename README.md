@@ -6,7 +6,7 @@ This is a django project, which collects data from <a href="https://mmonit.com/m
 - Collects and parses monit xml data from one or multiple servers. 
 - Stores the data for a given time period. 
 - Displays it in pretty graphs. 
-- Start/stop/restart buttons for processes (only for the server where monitcollector is installed).
+- Start/stop/restart buttons for processes.
 - Status tables and graphs are refreshing automatically via ajax.
 - Processes are automatically removed when they stop sending data (removed from monitrc). Servers can be deleted manually.
 
@@ -46,12 +46,29 @@ In your monitrc file add this line to send data to the collector.
 ```
 set mmonit http://mydomain.com/monitcollector/collector
 ```
+If you want to enable the start/stop buttons (optional), the monit http daemon must be available, in monitrc (you can also )
+```
+set httpd port 2812
+  allow myuser:mypassword
+```
+If you don't want to allow access from everywhere add "allow ip.address..." with the ip address of the server, where monitcollector is installed. 
+The user and password have to be set in the settings.py:
+```
+ENABLE_BUTTONS = True
+MONIT_USER = myuser
+MONIT_PASSWORD = mypassword
+MONIT_PORT = 2812
+```
+You don't have to specify the port if you use the default port 2812. Also, the port must not me blocked by the firefall, e.g. 
+```
+ufw allow 2812
+```
 
-You can also monitor this app with monit itself. It is important to write the full path to everything.
+You can also monitor this app with monit itself. Not using the privided script lead to error in my case.
 ```
 check process monitcollector with pidfile /path/to/pid/gunicorn.pid
-  start program = "/virtualenv_path/bin/python /virtualenv_path/bin/gunicorn -c /project/path/gunicorn.conf.py /project/path/wsgi:application"
-  stop program = "/usr/bin/pkill -f '/virtualenv_path/bin/python /virtualenv_path/bin/gunicorn -c /project/path/gunicorn.conf.py /project/path/wsgi:application'"
+  start program = "/project/path/gunicorn.sh start"
+  stop program = "/project/path/gunicorn.sh stop"
   if failed host 127.0.0.1 port 8011 protocol http then restart
   if 5 restarts within 5 cycles then alert
 ```

@@ -35,30 +35,11 @@
   </div>
 </div>
 <div class="row clearfix">
-{% if this_server %}
-    {% if request.user.is_staff %}
+{% if enable_buttons %}
         {% include "monitcollector/includes/process_buttons.html" %}
-    {% else %}
-      <div class="col-md-12 column" style="text-align: center;">
-        <h4> These buttons only work for the server, where the monitcollector app is running. </h4>
-        <h4> Also, these buttons don't work in this demo of course. :p </h4>
-        <div class="col-md-3 column">
-          <button type="submit" class="btn btn-primary btn-lg"> Start service </button>
-        </div>
-        <div class="col-md-3 column">
-          <button type="submit" class="btn btn-primary btn-lg"> Stop service </button>
-        </div>
-        <div class="col-md-3 column">
-          <button type="submit" class="btn btn-primary btn-lg"> Restart service </button>
-        </div>
-        <div class="col-md-3 column">
-          <button type="submit" class="btn btn-primary btn-lg"> {% if process.monitor == 0 %}Enable monitoring{% else %}Disable monitoring{% endif %} </button>
-        </div>
-      </div>
-    {% endif %}
 {% else %}
   <div class="col-md-12 column marginTop" style="text-align: center;">
-    <h4> Starting and stopping processes only works for the server where the monitcollector app is installed. </h4>
+    <h4> To enable start/stop buttons follow the instructions in the README file. </h4>
   </div>
 {% endif %}
     

@@ -1,6 +1,7 @@
 LICENSE
 MANIFEST.in
 README.md
+gunicorn.sh
 setup.py
 django_monit_collector.egg-info/PKG-INFO
 django_monit_collector.egg-info/SOURCES.txt
@@ -17,9 +18,9 @@ monitcollector/static/js/csrf.js
 monitcollector/static/js/dygraph-combined.js
 monitcollector/static/js/jquery-2.1.4.min.js
 monitcollector/templates/base.html
-monitcollector/templates/includes/login.html
 monitcollector/templates/monitcollector/confirm_delete.html
 monitcollector/templates/monitcollector/dashboard.html
+monitcollector/templates/monitcollector/error.html
 monitcollector/templates/monitcollector/process.html
 monitcollector/templates/monitcollector/server.html
 monitcollector/templates/monitcollector/includes/dashboard_table.html

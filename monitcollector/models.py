@@ -2,17 +2,10 @@ from django.db import models
 from xml.dom import minidom
 import json
 import time
-# from datetime import datetime
+from django.conf import settings
 
-import settings
-
-try:
-    maximum_store_days = settings.MAXIMUM_STORE_DAYS
-    monit_update_period = settings.MONIT_UPDATE_PERIOD
-except:
-    monit_update_period = 60
-    maximum_store_days = 7
-    
+monit_update_period = getattr(settings, 'MONIT_UPDATE_PERIOD', 60)
+maximum_store_days = getattr(settings, 'MAXIMUM_STORE_DAYS', 7)
 
 """
 from the monit source code (monit/contrib/wap.php):
