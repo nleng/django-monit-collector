@@ -20,10 +20,7 @@ Or clone the repository if you want to modify the code:
 ```
 git clone https://github.com/nleng/django-monit-collector
 ```
-<<<<<<< HEAD
 
-=======
->>>>>>> 208811e6f9d59295f0fa11079fd687488fedac51
 Add 'monitcollector' to your installed apps in settings.py:
 ```
 INSTALLED_APPS = [
