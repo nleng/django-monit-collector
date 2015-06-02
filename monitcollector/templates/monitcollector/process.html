@@ -78,8 +78,12 @@
                             labels: ['Time', '{{process.name}} CPU usage'],
 														axisLabelColor: '#CCC',
 														axisLineColor: '#CCC',
-														colors: ["#7FDD00"]
-                          });
+														colors: ["#7FDD00"], 
+                zoomCallback : function() { // (minDate, maxDate)
+                    set_linewidth(graph_cpu, data_cpu); 
+                },
+              });
+      set_linewidth(graph_cpu, data_cpu); 
       var data_mem = [];
       y1 = {{process.memory_percenttotal}};
       var y2 = {{process.memory_kilobytetotal}};
@@ -98,8 +102,12 @@
                             labels: ['Time', 'memory in %', 'memory in GB'],
 														axisLabelColor: '#CCC',
 														axisLineColor: '#CCC',
-														colors: ["#DAA520", "#00FFFF", "#7FDD00", "#EE5500"]
-                          });
+														colors: ["#DAA520", "#00FFFF", "#7FDD00", "#EE5500"],
+                zoomCallback : function() { // (minDate, maxDate)
+                    set_linewidth(graph_mem, data_mem); 
+                },
+              });
+      set_linewidth(graph_mem, data_mem); 
       // It sucks that these things aren't objects, and we need to store state in window.
       window.intervalId = setInterval(function() {
             $.post("{% url 'monitcollector.views.load_process_data' server.id process.name %}", function(data) {
@@ -119,8 +127,32 @@
             $( "#process_table" ).replaceWith( data.table_html );
         });
       }, 2000);
+      
+    // smaller points if the data array is too big
+    function set_linewidth(graph ,data) {
+        var range = graph.xAxisRange();
+        var data_points = 0
+        for (var i = 0; i < data.length; i++) {
+          var x = data[i][0];
+          //if (x > minDate && x < maxDate)
+          if (x > range[0] && x < range[1])
+            data_points++;
+        }
+        var new_opts = {};
+        if (data_points > 2000) {
+            new_opts.pointSize = 0.5;
+            new_opts.strokeWidth = 0.33;
+        }
+        else if (data_points > 900) {
+            new_opts.pointSize = 1;
+            new_opts.strokeWidth = 0.5;
+        } else {
+            new_opts.pointSize = 1.5;
+            new_opts.strokeWidth = 1.;
+        }
+        graph.updateOptions(new_opts);
     }
-);
+});
 </script>
 {% csrf_token %}
 {% endif %}
