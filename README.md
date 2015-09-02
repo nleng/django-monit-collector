@@ -50,13 +50,13 @@ Collect static files:
 ```
 python manage.py collectstatic
 ```
-The app should then be available at http://mydomain.com/monitcollector/. 
+With correct webserver configurating the app should then be available at http://mydomain.com/monitcollector/. 
 
 In your monitrc file add this line to send data to the collector.
 ```
 set mmonit http://mydomain.com/monitcollector/collector
 ```
-If you want to enable the start/stop buttons (optional), the monit http daemon must be available, in monitrc (you can also )
+If you want to enable the start/stop buttons (optional), the monit http daemon must be available, in monitrc (you can also)
 ```
 set httpd port 2812
   allow myuser:mypassword
