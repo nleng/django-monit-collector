@@ -42,6 +42,14 @@ Include monitcollector in your url.py:
 ```
 url(r'^monitcollector/', include('monitcollector.urls')),
 ```
+Create/sync the database and create a superuser (you need to login to access the monit-collector dashboard):
+```
+python manage.py syncdb
+```
+Collect static files:
+```
+python manage.py collectstatic
+```
 In your monitrc file add this line to send data to the collector.
 ```
 set mmonit http://mydomain.com/monitcollector/collector
