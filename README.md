@@ -50,6 +50,8 @@ Collect static files:
 ```
 python manage.py collectstatic
 ```
+The app should then be available at http://mydomain.com/monitcollector/. 
+
 In your monitrc file add this line to send data to the collector.
 ```
 set mmonit http://mydomain.com/monitcollector/collector
