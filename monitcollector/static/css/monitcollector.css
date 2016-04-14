@@ -22,7 +22,7 @@ body {
   font-size: 18px;
 }
 
-.nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus, .nav-tabs>li>a:hover{
+thead, .nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus, .nav-tabs>li>a:hover {
 	background: #4e5d6c url("img/noise.png") repeat top left;
 	color: #ddd;
 }
