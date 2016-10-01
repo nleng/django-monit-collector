@@ -38,17 +38,48 @@ def collect_data(xml_str):
         monit_id = xmldoc.getElementsByTagName('monit')[0].attributes["id"].value
     except:
         return False
-    
+
     Server.update(xmldoc, monit_id)
     return True
 
 def decode_status(status):
-    errors_messages = ['Ok', 'Checksum failed', 'Resource limit matched', 'Timeout', 'Timestamp failed', 'Size failed',
-              'Connection failed', 'Permission failed', 'UID failed', 'GID failed', 'Does not exist',
-              'Invalid type', 'Data access error', 'Execution failed', 'Changed', 'ICMP failed']
+    errors_messages = [
+        'Ok',
+        'Checksum failed',
+        'Resource limit matched',
+        'Timeout',
+        'Timestamp failed',
+        'Size failed',
+        'Connection failed',
+        'Permission failed',
+        'UID failed',
+        'GID failed',
+        'Does not exist',
+        'Invalid type',
+        'Data access error',
+        'Execution failed',
+        'Filesystem flags failed',
+        'ICMP failed',
+        'Content failed',
+        'Monit instance failed',
+        'Action done',
+        'PID failed',
+        'PPID failed',
+        'Heartbeat failed',
+        'Status failed',
+        'Uptime failed',
+        'Link down',
+        'Speed failed',
+        'Saturation exceeded',
+        'Download bytes exceeded',
+        'Upload bytes exceeded',
+        'Download packets exceeded',
+        'Upload packets exceeded'
+    ]
+
     # choice_monitor = ['No', 'Yes', 'Init']
     # format to a bitarray
-    bits = '{0:015b}'.format(status)
+    bits = '{0:030b}'.format(status)
     out_str = ''
     ok = True
     for i in range(len(bits)):
@@ -60,7 +91,7 @@ def decode_status(status):
     if ok:
         return "running"
     return out_str
-    
+
 def get_value(xmldoc, parent_element="", child_element="", attribute=""):
   try:
     if parent_element == "" and attribute == "":
@@ -108,7 +139,7 @@ class Server(models.Model):
     localhostname = models.TextField(null=True)
     uptime = models.IntegerField(null=True)
     address = models.TextField(null=True)
-    
+
     @classmethod
     def update(cls, xmldoc, monit_id):
         reporting_services = []
@@ -187,7 +218,7 @@ class System(Service):
     swap_percent = models.TextField(null=True)
     swap_kilobyte_last = models.PositiveIntegerField(null=True)
     swap_kilobyte = models.TextField(null=True)
-    
+
     @classmethod
     def update(cls, xmldoc, server, service):
         system, created = cls.objects.get_or_create(server=server)
@@ -237,7 +268,7 @@ class Process(Service):
     memory_percenttotal = models.TextField(null=True)
     memory_kilobytetotal_last = models.PositiveIntegerField(null=True)
     memory_kilobytetotal = models.TextField(null=True)
-    
+
     @classmethod
     def update(cls, xmldoc, server, service):
         service_name = get_value(service, "", "", "name")
