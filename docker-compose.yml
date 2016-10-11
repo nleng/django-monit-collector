@@ -1,0 +1,22 @@
+version: '2'
+
+volumes:
+  sqlitedb:
+    driver: local
+
+services:
+  #Uncomment for using PSQL
+  #db:
+  #  image: postgres
+
+  monitcollector:
+    build: ./src
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./src:/usr/src/app
+      - sqlitedb:/usr/src/app/data
+    ports:
+      - "8000:8000"
+    #Uncomment for using PSQL
+    #depends_on:
+    #  - db

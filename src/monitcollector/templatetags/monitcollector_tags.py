@@ -61,20 +61,30 @@ def status_class(status, monitor):
 
 @register.filter
 def in_MB(value):
-    if not isinstance(value, (int, basestring)):
+    if not isinstance(value, (int, basestring())):
         return ""
     return str(round(float(value)/1.e3, 1))+" MB"
 
 @register.filter
 def in_GB(value):
-    if not isinstance(value, (int, basestring)):
+    if not isinstance(value, (int, basestring())):
         return ""
     return str(round(float(value)/1.e6, 1))+" GB"
 
 @register.filter
 def percent(value):
-    if not isinstance(value, (float, basestring)):
+    if not isinstance(value, (float, basestring())):
         return ""
     return str(round(value, 1))+"%"
 
 
+def basestring():
+    try:
+        unicode = unicode
+    except NameError:
+        # 'unicode' is undefined, must be Python 3
+        basestring = (str,bytes)
+    else:
+        # 'unicode' exists, must be Python 2
+        basestring = basestring
+    return basestring
