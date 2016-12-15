@@ -69,7 +69,7 @@ def server(request, server_id):
                 'monit_update_period': monit_update_period
             }
         )
-    except:
+    except Server.DoesNotExist:
         return render(
             request,
             'monitcollector/dashboard.html',
@@ -82,7 +82,7 @@ def process(request, server_id, process_name):
     server = Server.objects.get(id=server_id)
     process = server.process_set.get(name=process_name)
     return render(request, 'monitcollector/process.html',{'enable_buttons': enable_buttons, 'process_found': True, 'server': server, 'process': process, 'monit_update_period': monit_update_period})
-  except ObjectDoesNotExist:
+  except Server.DoesNotExist:
     return render(request, 'monitcollector/process.html',{'process_found': False})
 
 @staff_member_required
