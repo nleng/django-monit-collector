@@ -195,6 +195,8 @@ class Service(models.Model):
 
 # Service type=5
 class System(Service):
+    # TODO: put measurements in separate rows, then collect them instead of
+    #   JSON list manipulation
     server = models.OneToOneField('Server')
     date_last = models.PositiveIntegerField(null=True)
     date = models.TextField(null=True)

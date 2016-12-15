@@ -1,3 +1,6 @@
+import json
+import requests
+
 from django.http import HttpResponse, HttpResponseNotAllowed
 from django.shortcuts import  render, redirect
 from django.template.loader import render_to_string
@@ -6,8 +9,6 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.conf import settings
-import subprocess
-import requests
 # import socket
 
 from monitcollector.models import collect_data, Server, Process, System
@@ -57,13 +58,21 @@ def server(request, server_id):
             {
                 'server': server,
                 'system':system,
-                'system_load_zip': list(zip(system.load_avg01, system.load_avg05, system.load_avg15)),
-                'system_cpu_zip': list(zip(system.cpu_user, system.cpu_system, system.cpu_wait)),
+                'system_load_zip': list(zip(
+                    json.loads(system.load_avg01),
+                    json.loads(system.load_avg05),
+                    json.loads(system.load_avg15)
+                )),
+                'system_cpu_zip': list(zip(
+                    json.loads(system.cpu_user),
+                    json.loads(system.cpu_system),
+                    json.loads(system.cpu_wait)
+                )),
                 'system_mem_zip': list(zip(
-                    system.memory_percent,
-                    (k/10**6 for k in system.memory_kilobyte),
-                    system.swap_percent,
-                    (k/10**6 for k in system.swap_kilobyte)
+                    json.loads(system.memory_percent),
+                    (int(k)/10**6 for k in json.loads(system.memory_kilobyte)),
+                    json.loads(system.swap_percent),
+                    (int(k)/10**6 for k in json.loads(system.swap_kilobyte))
                 )),
                 'processes':processes,
                 'monit_update_period': monit_update_period
