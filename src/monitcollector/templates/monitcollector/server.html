@@ -84,18 +84,32 @@
         var point_size = 1.5;
         var stroke_width = 1;
         var update_period = 1000*{{monit_update_period}};
-        var data_load = [];
         var dates = {{system.date}};
         var date_objs = [];
         for(var i = 0; i < dates.length; i++) {
             date_objs.push(new Date(dates[i] * 1000));
         }
-        var y1 = {{system.load_avg01}};
-        var y2 = {{system.load_avg05}};
-        var y3 = {{system.load_avg15}};
+
+        var data_load = {{ system_load_zip }};
         for (var i = 0; i < dates.length; i++) {
-            data_load.push([date_objs[i], y1[i], y2[i], y3[i]]);
+            //data_load.push([date_objs[i], y1[i], y2[i], y3[i]]);
+            data_load[i].unshift(date_objs[i]);
         }
+
+        var data_cpu = {{ system_cpu_zip }};
+        //var ymax = 1.2*Math.max.apply(null, y1);
+        for (i = 0; i < dates.length; i++) {
+            //data_cpu.push([date_objs[i], y1[i], y2[i], y3[i]]);
+            data_cpu[i].unshift(date_objs[i]);
+        }
+
+        var data_mem = {{ system_memory_zip }};
+        //var ymax = 1.2*Math.max.apply(null, y1);
+        for (i = 0; i < dates.length; i++) {
+            //data_mem.push([date_objs[i], y1[i], y2[i] / 1.e6, y3[i], y4[i] / 1.e6]);
+            data_mem[i].unshift(date_objs[i]);
+        }
+
         var graph_load = new Dygraph(document.getElementById("graph_load"), data_load,
             {
                 legend: 'always', // show always
@@ -116,14 +130,7 @@
                 }
             });
         set_linewidth(graph_load, data_load);
-        var data_cpu = [];
-        y1 = {{system.cpu_user}};
-        y2 = {{system.cpu_system}};
-        y3 = {{system.cpu_wait}};
-        //var ymax = 1.2*Math.max.apply(null, y1);
-        for (i = 0; i < dates.length; i++) {
-            data_cpu.push([date_objs[i], y1[i], y2[i], y3[i]]);
-        }
+
         var graph_cpu = new Dygraph(document.getElementById("graph_cpu"), data_cpu,
             {
                 legend: 'always', // show always
@@ -145,15 +152,7 @@
                 }
             });
         set_linewidth(graph_cpu, data_cpu);
-        var data_mem = [];
-        y1 = {{system.memory_percent}};
-        y2 = {{system.memory_kilobyte}};
-        y3 = {{system.swap_percent}};
-        var y4 = {{system.swap_kilobyte}};
-        //var ymax = 1.2*Math.max.apply(null, y1);
-        for (i = 0; i < dates.length; i++) {
-            data_mem.push([date_objs[i], y1[i], y2[i] / 1.e6, y3[i], y4[i] / 1.e6]);
-        }
+
         var graph_mem = new Dygraph(document.getElementById("graph_mem"), data_mem,
             {
                 legend: 'always', // show always
@@ -175,6 +174,7 @@
                 }
             });
         set_linewidth(graph_mem, data_mem);
+
         window.intervalId = setInterval(function() {
             $.post("{% url 'monitcollector.views.load_system_data' server.id %}", function(data) {
                 var date = new Date(JSON.parse(data.date)*1000.);
