@@ -68,7 +68,7 @@ def server(request, server_id):
                     json.loads(system.cpu_system),
                     json.loads(system.cpu_wait)
                 )),
-                'system_mem_zip': list(zip(
+                'system_memory_zip': list(zip(
                     json.loads(system.memory_percent),
                     (int(k)/10**6 for k in json.loads(system.memory_kilobyte)),
                     json.loads(system.swap_percent),
