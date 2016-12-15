@@ -57,14 +57,14 @@ def server(request, server_id):
             {
                 'server': server,
                 'system':system,
-                'system_load_zip': zip(system.load_avg01, system.load_avg05, system.load_avg15),
-                'system_cpu_zip': zip(system.cpu_user, system.cpu_system, system.cpu_wait),
-                'system_mem_zip': zip(
+                'system_load_zip': list(zip(system.load_avg01, system.load_avg05, system.load_avg15)),
+                'system_cpu_zip': list(zip(system.cpu_user, system.cpu_system, system.cpu_wait)),
+                'system_mem_zip': list(zip(
                     system.memory_percent,
                     (k/10**6 for k in system.memory_kilobyte),
                     system.swap_percent,
                     (k/10**6 for k in system.swap_kilobyte)
-                ),
+                )),
                 'processes':processes,
                 'monit_update_period': monit_update_period
             }
