@@ -51,9 +51,22 @@ def server(request, server_id):
         server = Server.objects.get(id=server_id)
         system = server.system
         processes = server.process_set.all().order_by('name')
-        return render(request, 'monitcollector/server.html',{'server': server, 'system':system, 'processes':processes, 'monit_update_period': monit_update_period})
+        return render(
+            request,
+            'monitcollector/server.html',
+            {
+                'server': server,
+                'system':system,
+                'processes':processes,
+                'monit_update_period': monit_update_period
+            }
+        )
     except:
-        return render(request, 'monitcollector/dashboard.html',{'server_found': False})
+        return render(
+            request,
+            'monitcollector/dashboard.html',
+            {'server_found': False}
+        )
 
 @staff_member_required
 def process(request, server_id, process_name):

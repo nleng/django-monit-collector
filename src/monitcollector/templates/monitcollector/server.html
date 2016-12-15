@@ -50,126 +50,20 @@
 <script src="{% static 'js/dygraph-combined.js'%}"></script>
 <script src="{% static 'js/csrf.js'%}"></script>
 <script>
- $(document).ready(function () {
-      var point_size = 1.5;
-      var stroke_width = 1;
-      var update_period = 1000*{{monit_update_period}};
-      var data_load = [];
-      var dates = {{system.date}};
-      var y1 = {{system.load_avg01}};
-      var y2 = {{system.load_avg05}};
-      var y3 = {{system.load_avg15}};
-      for (i = 0; i < dates.length; i++)
-	    data_load.push([new Date(dates[i]*1000.), y1[i], y2[i], y3[i]]);
-      var graph_load = new Dygraph(document.getElementById("graph_load"), data_load,
-                          {
-			    legend: 'always', // show always
-			    labelsDivWidth: '140', // default 250
-			    labelsSeparateLines: true,
-			    ylabel: 'Load average',
-			    xlabel: 'Time',
-			    drawPoints: true,
-			    pointSize: point_size,
-			    strokeWidth: stroke_width,
-			    //showRoller: true,  // for a rolling average over values
-			    labels: ['Time', 'load 1 min', 'load 5 min', 'load 15 min'],
-			    axisLabelColor: '#CCC',
-			    axisLineColor: '#CCC',
-			    colors: ["#7FDD00", "#00FFFF", "#DAA520", "#008080"],
-                zoomCallback : function() { // (minDate, maxDate)
-                    set_linewidth(graph_load, data_load); 
-                },
-              });
-      set_linewidth(graph_load, data_load); 
-      var data_cpu = [];
-      y1 = {{system.cpu_user}};
-      y2 = {{system.cpu_system}};
-      y3 = {{system.cpu_wait}};
-      //var ymax = 1.2*Math.max.apply(null, y1);
-      for (i = 0; i < dates.length; i++)
-        data_cpu.push([new Date(dates[i]*1000.), y1[i], y2[i], y3[i]]);
-      var graph_cpu = new Dygraph(document.getElementById("graph_cpu"), data_cpu,
-                          {
-														legend: 'always', // show always
-														labelsDivWidth: '140', // default 250
-                            labelsSeparateLines: true,
-			    ylabel: 'CPU usage (in %)',
-			    xlabel: 'Time',
-                            drawPoints: true,
-			    pointSize: point_size,
-			    strokeWidth: stroke_width,
-                            //showRoller: true,  // to average over values (?)
-                            //valueRange: [0.0, ymax],
-                            labels: ['Time', 'user', 'system', 'wait'],
-														axisLabelColor: '#CCC',
-														axisLineColor: '#CCC',
-														colors: ["#7FDD00", "#00FFFF", "#DAA520", "#008080"],
-                zoomCallback : function() { // (minDate, maxDate)
-                    set_linewidth(graph_cpu, data_cpu); 
-                },
-              });
-      set_linewidth(graph_cpu, data_cpu); 
-      var data_mem = [];
-      y1 = {{system.memory_percent}};
-      y2 = {{system.memory_kilobyte}};
-      y3 = {{system.swap_percent}};
-      var y4 = {{system.swap_kilobyte}};
-      //var ymax = 1.2*Math.max.apply(null, y1);
-      for (i = 0; i < dates.length; i++)
-        data_mem.push([new Date(dates[i]*1000.), y1[i], y2[i]/1.e6, y3[i], y4[i]/1.e6]);
-      var graph_mem = new Dygraph(document.getElementById("graph_mem"), data_mem,
-                          {
-			    legend: 'always', // show always
-			    labelsDivWidth: '140', // default 250
-                            labelsSeparateLines: true,
-			    ylabel: 'Memonry usage (in % or GB)',
-			    xlabel: 'Time',
-                            drawPoints: true,
-			    pointSize: point_size,
-			    strokeWidth: stroke_width,
-                            //showRoller: true,  // to average over values (?)
-                            //valueRange: [0.0, ymax],
-                            labels: ['Time', 'memory in %', 'memory in GB', 'swap in %', 'swap in GB'],
-			    axisLabelColor: '#CCC',
-			    axisLineColor: '#CCC',
-			    colors: ["#7FDD00", "#00FFFF", "#DAA520", "#EE5500"], 
-                zoomCallback : function() { // (minDate, maxDate)
-                    set_linewidth(graph_mem, data_mem); 
-                },
-              });
-      set_linewidth(graph_mem, data_mem); 
-      window.intervalId = setInterval(function() {
-			$.post("{% url 'monitcollector.views.load_system_data' server.id %}", function(data) {
-                var date = new Date(JSON.parse(data.date)*1000.);
-                if (date>data_cpu[data_cpu.length-1][0]) {
-                    data_load.push([date, JSON.parse(data.load_avg01), JSON.parse(data.load_avg05), JSON.parse(data.load_avg15)]);
-                    graph_load.updateOptions( { 'file': data_load } );
-
-                    data_cpu.push([date, JSON.parse(data.cpu_user), JSON.parse(data.cpu_system), JSON.parse(data.cpu_wait)]);
-                    graph_cpu.updateOptions( { 'file': data_cpu } );
-                
-                    data_mem.push([date, JSON.parse(data.memory_percent), JSON.parse(data.memory_kilobyte)/1.e6, JSON.parse(data.swap_percent), JSON.parse(data.swap_kilobyte)/1.e6]);
-                    graph_mem.updateOptions( { 'file': data_mem } );
-                    
-                    $( "#server_table" ).replaceWith( data.table_html );
-                }
-			});
-      }, update_period);
-      window.intervalId = setInterval(function() {
-        $.post("{% url 'monitcollector.views.load_system_table' server.id %}", function(data) {
-            $( "#server_table" ).replaceWith( data.table_html );
-        });
-      }, 2000);
-      
     // smaller points if the data array is too big
     function set_linewidth(graph ,data) {
         var range = graph.xAxisRange();
-        var data_points = 0
+        var data_points = 0;
         for (var i = 0; i < data.length; i++) {
-          var x = data[i][0];
-          //if (x > minDate && x < maxDate)
-          if (x > range[0] && x < range[1])
-            data_points++;
+            var x = data[i][0];
+            //if (x > minDate && x < maxDate)
+            if (x > range[0] && x < range[1]) {
+                data_points++;
+            }
+            // No need to check any further
+            if(data_points > 2000) {
+                break;
+            }
         }
         var new_opts = {};
         if (data_points > 2000) {
@@ -186,7 +80,125 @@
         graph.updateOptions(new_opts);
     }
 
-});
+    $(document).ready(function () {
+        var point_size = 1.5;
+        var stroke_width = 1;
+        var update_period = 1000*{{monit_update_period}};
+        var data_load = [];
+        var dates = {{system.date}};
+        var date_objs = [];
+        for(var i = 0; i < dates.length; i++) {
+            date_objs.push(new Date(dates[i] * 1000));
+        }
+        var y1 = {{system.load_avg01}};
+        var y2 = {{system.load_avg05}};
+        var y3 = {{system.load_avg15}};
+        for (var i = 0; i < dates.length; i++) {
+            data_load.push([date_objs[i], y1[i], y2[i], y3[i]]);
+        }
+        var graph_load = new Dygraph(document.getElementById("graph_load"), data_load,
+            {
+                legend: 'always', // show always
+                labelsDivWidth: '140', // default 250
+                labelsSeparateLines: true,
+                ylabel: 'Load average',
+                xlabel: 'Time',
+                drawPoints: true,
+                pointSize: point_size,
+                strokeWidth: stroke_width,
+                //showRoller: true,  // for a rolling average over values
+                labels: ['Time', 'load 1 min', 'load 5 min', 'load 15 min'],
+                axisLabelColor: '#CCC',
+                axisLineColor: '#CCC',
+                colors: ["#7FDD00", "#00FFFF", "#DAA520", "#008080"],
+                zoomCallback : function() { // (minDate, maxDate)
+                    set_linewidth(graph_load, data_load);
+                }
+            });
+        set_linewidth(graph_load, data_load);
+        var data_cpu = [];
+        y1 = {{system.cpu_user}};
+        y2 = {{system.cpu_system}};
+        y3 = {{system.cpu_wait}};
+        //var ymax = 1.2*Math.max.apply(null, y1);
+        for (i = 0; i < dates.length; i++) {
+            data_cpu.push([date_objs[i], y1[i], y2[i], y3[i]]);
+        }
+        var graph_cpu = new Dygraph(document.getElementById("graph_cpu"), data_cpu,
+            {
+                legend: 'always', // show always
+                labelsDivWidth: '140', // default 250
+                labelsSeparateLines: true,
+                ylabel: 'CPU usage (in %)',
+                xlabel: 'Time',
+                drawPoints: true,
+                pointSize: point_size,
+                strokeWidth: stroke_width,
+                //showRoller: true,  // to average over values (?)
+                //valueRange: [0.0, ymax],
+                labels: ['Time', 'user', 'system', 'wait'],
+                axisLabelColor: '#CCC',
+                axisLineColor: '#CCC',
+                colors: ["#7FDD00", "#00FFFF", "#DAA520", "#008080"],
+                zoomCallback : function() { // (minDate, maxDate)
+                    set_linewidth(graph_cpu, data_cpu);
+                }
+            });
+        set_linewidth(graph_cpu, data_cpu);
+        var data_mem = [];
+        y1 = {{system.memory_percent}};
+        y2 = {{system.memory_kilobyte}};
+        y3 = {{system.swap_percent}};
+        var y4 = {{system.swap_kilobyte}};
+        //var ymax = 1.2*Math.max.apply(null, y1);
+        for (i = 0; i < dates.length; i++) {
+            data_mem.push([date_objs[i], y1[i], y2[i] / 1.e6, y3[i], y4[i] / 1.e6]);
+        }
+        var graph_mem = new Dygraph(document.getElementById("graph_mem"), data_mem,
+            {
+                legend: 'always', // show always
+                labelsDivWidth: '140', // default 250
+                labelsSeparateLines: true,
+                ylabel: 'Memory usage (in % or GB)',
+                xlabel: 'Time',
+                drawPoints: true,
+                pointSize: point_size,
+                strokeWidth: stroke_width,
+                //showRoller: true,  // to average over values (?)
+                //valueRange: [0.0, ymax],
+                labels: ['Time', 'memory in %', 'memory in GB', 'swap in %', 'swap in GB'],
+                axisLabelColor: '#CCC',
+                axisLineColor: '#CCC',
+                colors: ["#7FDD00", "#00FFFF", "#DAA520", "#EE5500"],
+                zoomCallback : function() { // (minDate, maxDate)
+                    set_linewidth(graph_mem, data_mem);
+                }
+            });
+        set_linewidth(graph_mem, data_mem);
+        window.intervalId = setInterval(function() {
+            $.post("{% url 'monitcollector.views.load_system_data' server.id %}", function(data) {
+                var date = new Date(JSON.parse(data.date)*1000.);
+                if (date>data_cpu[data_cpu.length-1][0]) {
+                    data_load.push([date, JSON.parse(data.load_avg01), JSON.parse(data.load_avg05), JSON.parse(data.load_avg15)]);
+                    graph_load.updateOptions( { 'file': data_load } );
+
+                    data_cpu.push([date, JSON.parse(data.cpu_user), JSON.parse(data.cpu_system), JSON.parse(data.cpu_wait)]);
+                    graph_cpu.updateOptions( { 'file': data_cpu } );
+
+                    data_mem.push([date, JSON.parse(data.memory_percent), JSON.parse(data.memory_kilobyte)/1.e6, JSON.parse(data.swap_percent), JSON.parse(data.swap_kilobyte)/1.e6]);
+                    graph_mem.updateOptions( { 'file': data_mem } );
+
+                    $( "#server_table" ).replaceWith( data.table_html );
+                }
+            });
+        }, update_period);
+        window.intervalId = setInterval(function() {
+            $.post("{% url 'monitcollector.views.load_system_table' server.id %}", function(data) {
+                $( "#server_table" ).replaceWith( data.table_html );
+            });
+        }, 2000);
+
+    });
 </script>
 {% csrf_token %}
 
