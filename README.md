@@ -69,7 +69,7 @@ MONIT_USER = youruser
 MONIT_PASSWORD = yourpassword
 MONIT_PORT = 2812
 ```
-You don't have to specify the port if you use the default port 2812. Also, the port must not me blocked by the firewall, e.g. 
+You don't have to specify the port if you use the default port 2812. Also, the port must not be blocked by the firewall, e.g. 
 ```
 ufw allow 2812
 ```
