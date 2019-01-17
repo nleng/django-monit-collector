@@ -1,0 +1,5 @@
+include LICENSE
+include README.md
+recursive-include monitcollector/static *
+recursive-include monitcollector/templates *
+recursive-include monitcollector/templatetags *

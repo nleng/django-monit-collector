@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block jumbotron %}
+<h1 style="font-size:50px;">
+	Delete Server
+</h1>
+{% endblock %}
+
+
+{% block content %}
+  <form method="POST" action="{% url 'delete_server' server.id%}" style="text-align: center;">
+      {% csrf_token %}
+      <h3>Do you really want to remove the server {{ server.localhostname }}? It will be added again if it continues sending data. </h3>
+      <button type="submit" class="btn btn-primary btn-lg" style="margin-right: 50px;"> Delete server </button>
+      <a class="btn btn-primary btn-lg" href="{% url 'server' server.id %}"> Go back </a>
+  </form>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block jumbotron %}
+<h1 style="font-size:50px;">
+	Error
+</h1>
+{% endblock %}
+
+
+{% block content %}
+    Timeout after {{time_out}} seconds for connection to server with url <b>http://{{monit_user}}:(pw_not_shown)@{{ip_address}}:{{monit_port}}/{{process_name}}</b>. Please make sure the correct 
+    user, password and port are used and that the request is not blocked by the firewall. If the url is wrong please open an issue on 
+    <a href="https://github.com/nleng/django-monit-collector" target='_blank'>github.</a>
+{% endblock %}

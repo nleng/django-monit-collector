@@ -1,0 +1,38 @@
+{% load staticfiles %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="keywords" content="{% block meta_keywords %}{% endblock %}">
+  <meta name="description" content="django-monit-collector system monitoring">
+  <title>monitcollector</title>
+		
+	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}" />
+	<link rel="stylesheet" type="text/css" href="{% static 'css/monitcollector.css' %}" />
+
+</head>
+        
+<body id="{% block body_id %}{% endblock %}">
+<div class="container" style="font-size: 18px;">
+	<nav class="navbar navbar-default" role="navigation">
+		<div class="container-fluid">
+			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+				<ul class="nav navbar-nav">
+					<li {% url 'dashboard' as url %}{% if request.path == url %} class="active" {% endif %}><a href="{% url 'dashboard' %}"> Dashboard </a></li>
+					{% block additinal_nav %}{% endblock %}
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<div class="jumbotron">
+        {% block jumbotron %} {% endblock %}
+			</div>
+		</div>
+	</div>
+  {% block content %} {% endblock %}
+</div>
+</body>
+</html>

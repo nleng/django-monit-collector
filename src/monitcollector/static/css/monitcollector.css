@@ -1,0 +1,99 @@
+
+@import url(//fonts.googleapis.com/css?family=Josefin+Sans:400,600,700,400italic,600italic,700italic);
+/* @import url(//fonts.googleapis.com/css?family=Roboto+Condensed:400italic,700italic,400,700); */
+
+body {
+  background: #2b3e50 url("img/noise.png") repeat top left;
+/*   font-family: 'Roboto Condensed', sans-serif; */
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 1.em;
+  padding-bottom: 50px;
+/*   overflow: hidden; */
+}
+
+.jumbotron {
+  background: #4e5d6c url("img/noise.png") repeat top left;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.navbar, .panel-footer {
+  background: #4e5d6c url("img/noise.png") repeat top left;
+  font-size: 18px;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus, .nav-tabs>li>a:hover{
+	background: #4e5d6c url("img/noise.png") repeat top left;
+	color: #ddd;
+}
+
+#process_buttons {
+  text-align: center;
+}
+
+.marginTop {
+  margin-top: 40px;
+}
+
+.helper {
+  text-align: center;
+}
+
+.graph {
+  cursor: crosshair;
+}
+
+.link {
+  cursor: pointer;
+}
+
+.green {
+  color: #5cb85c;
+  font-weight: bold;
+}
+
+.red {
+  color: #d9534f;
+  font-weight: bold;
+}
+
+.yellow {
+  color: #f0ad4e;
+  font-weight: bold;
+}
+
+.blue {
+  color: #5bc0de;
+  font-weight: bold;
+}
+
+
+.dygraph-legend {
+  background: transparent !important;
+  color: #DDD;
+  top: 0px;
+  left: 0px;
+}
+
+tbody {
+  font-size: 15px;
+}
+
+thead {
+  background-color: #4e5d6c;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+@media (min-width: 1400px) {
+  .container {
+    width: 1300px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .container {
+    width: 1500px;
+  }
+}
+

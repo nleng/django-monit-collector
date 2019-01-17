@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block jumbotron %}
+<h1 style="font-size:60px;">
+	Dashboard
+</h1>
+<h3>
+	django-monit-collector
+</h3>
+<p style="font-size:18px;">
+	Easy system monitoring
+</p>
+{% endblock %}
+
+{% block content %}
+<div class="row clearfix">
+	<div class="col-md-12 column">
+	{% if server_found %}
+		<div class="col-md-12 column marginTop">
+			{% include 'monitcollector/includes/dashboard_table.html' %}
+		</div>
+	{% else %}
+	  <p>No servers were found in the database.</p>
+	{% endif %}
+	</div>
+</div>
+<script src="{% static 'js/jquery-2.1.4.min.js'%}"></script>
+<script src="{% static 'js/csrf.js'%}"></script>
+<script>
+$(document).ready(function () {
+	window.intervalId = setInterval(function() {
+	$.post("{% url 'load_dashboard_table' %}", function(data) {
+	    $( "#dashboard_table" ).replaceWith( data.table_html );
+	});
+	}, 2000);
+});
+</script>
+{% endblock %}
+
+
+
+

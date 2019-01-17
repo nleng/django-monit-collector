@@ -1,0 +1,35 @@
+{% load monitcollector_tags %}
+<div id="dashboard_table" class="table-responsive">
+	{# table-striped table-condensed table-hover class="success" class="warning" class="danger"#}
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<td>Hostname</td>
+				<td>Address</td> 
+				<td>Monit version</td>
+				<td>Uptime</td>
+				<td>Load avgerages</td>
+				<td>CPU (user)</td>
+				<td>Memory</td>
+				<td>Last data received</td>
+			</tr>
+		</thead>
+		<tbody>
+		{%for server in servers %}
+			{#   onclick="document.location = '{% url "dashboard" %}';" #}
+			
+				<tr class="link" onclick="document.location = '{% url "server" server.id %}';">
+					<td>{{ server.localhostname }}</td>
+					<td>{{ server.address }}</td> 
+					<td>{{ server.monit_version }}</td>
+					<td>{{ server.uptime|time_str }}</td>
+					<td>{{ server.system.load_avg01_last }}, {{ server.system.load_avg05_last }}, {{ server.system.load_avg15_last }}</td>
+					<td>{{ server.system.cpu_user_last }}%</td>
+					<td>{{ server.system.memory_percent_last }}% [{{ server.system.memory_kilobyte_last|in_GB }}]</td>
+					<td class="{{ server.system.date_last|time_class }}">{{ server.system.date_last|timestamp_to_date }}</td>
+				</tr>
+			
+			{% endfor%}
+		</tbody>
+	</table>
+</div>

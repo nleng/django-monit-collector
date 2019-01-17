@@ -1,0 +1,30 @@
+{% load monitcollector_tags %}
+
+{# table-striped table-condensed table-hover class="success" class="warning" class="danger"#}
+<div id="server_table" class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+	<td>name</td>
+	<td>status</td> 
+	<td>uptime</td>
+	<td>children</td>
+	<td>CPU total</td>
+	<td>memory total</td>
+      </tr>
+    </thead>
+    <tbody>
+      {% for process in processes %}
+	<tr class="link" onclick="document.location = '{% url "process" server.id process.name %}';">
+	  <td>{{ process.name }}</td>
+	  <td class="{{ process.status|status_class:process.monitor }}">{{ process.status|status_str:process.monitor }}</td> 
+	  <td>{{ process.uptime|time_str }}</td>
+	  <td>{% if process.children %}{{ process.children }}{% endif %}</td>
+	  <td>{{ process.cpu_percenttotal_last|percent }}</td>
+	  <td>{{ process.memory_percenttotal_last|percent }} {% if process.memory_kilobytetotal %}[{{ process.memory_kilobytetotal_last|in_MB}}] {% endif %}</td>
+	</tr>
+      
+      {% endfor%}
+    </tbody>
+  </table>
+</div>

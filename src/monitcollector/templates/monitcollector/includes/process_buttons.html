@@ -1,0 +1,35 @@
+<div  id="process_buttons" class="col-md-12 column">
+<h4> These buttons only show for the server, where the monitcollector app is running. </h4>
+<div class="col-md-3 column">
+<form method="POST" action="{% url 'process_action' server.id %}">
+  {% csrf_token %}
+  <input type="hidden" value="start" name="action">
+  <input type="hidden" value="{{process.name}}" name="process">
+  <button type="submit" class="btn btn-primary btn-lg"> Start service </button>
+</form>
+</div>
+<div class="col-md-3 column">
+<form method="POST" action="{% url 'process_action' server.id %}">
+  {% csrf_token %}
+  <input type="hidden" value="stop" name="action">
+  <input type="hidden" value="{{process.name}}" name="process">
+  <button type="submit" class="btn btn-primary btn-lg"> Stop service </button>
+</form>
+</div>
+<div class="col-md-3 column">
+<form method="POST" action="{% url 'process_action' server.id %}">
+  {% csrf_token %}
+  <input type="hidden" value="restart" name="action">
+  <input type="hidden" value="{{process.name}}" name="process">
+  <button type="submit" class="btn btn-primary btn-lg"> Restart service </button>
+</form>
+</div>
+<div class="col-md-3 column">
+<form method="POST" action="{% url 'process_action' server.id %}">
+  {% csrf_token %}
+  <input type="hidden" value="{% if process.monitor == 0 %}monitor{% else %}unmonitor{% endif %}" name="action">
+  <input type="hidden" value="{{process.name}}" name="process">
+  <button type="submit" class="btn btn-primary btn-lg"> {% if process.monitor == 0 %}Enable monitoring{% else %}Disable monitoring{% endif %} </button>
+</form>
+</div>
+</div>
