@@ -83,6 +83,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
             'libraries':{
+                'i18n' : 'django.templatetags.i18n',
+                'static' : 'django.templatetags.static',
                 'staticfiles' : 'django.templatetags.static',
                 'monitcollector_tags' : 'monitcollector.templatetags.monitcollector_tags',
             }
