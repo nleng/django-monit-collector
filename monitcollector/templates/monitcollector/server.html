@@ -41,7 +41,7 @@
 <div class="row clearfix">
     <div class="col-md-12 column">
         Platform: {{ server.platform.name }}, release: {{ server.platform.release }}, version: {{ server.platform.version }}, machine: {{ server.platform.machine }}, CPU: {{ server.platform.cpu }}, {{ server.platform.memory|in_GB }} memory, {{ server.platform.swap|in_GB }} swap
-     <a class="btn btn-primary btn-lg" href="{% url 'monitcollector.views.confirm_delete' server.id %}" style="margin-left: 20px;"> Delete server </a>
+     <a class="btn btn-primary btn-lg" href="{% url 'confirm_delete' server.id %}" style="margin-left: 20px;"> Delete server </a>
     </div>
 </div>
 
@@ -139,7 +139,7 @@
               });
       set_linewidth(graph_mem, data_mem); 
       window.intervalId = setInterval(function() {
-			$.post("{% url 'monitcollector.views.load_system_data' server.id %}", function(data) {
+			$.post("{% url 'load_system_data' server.id %}", function(data) {
                 var date = new Date(JSON.parse(data.date)*1000.);
                 if (date>data_cpu[data_cpu.length-1][0]) {
                     data_load.push([date, JSON.parse(data.load_avg01), JSON.parse(data.load_avg05), JSON.parse(data.load_avg15)]);
@@ -156,7 +156,7 @@
 			});
       }, update_period);
       window.intervalId = setInterval(function() {
-        $.post("{% url 'monitcollector.views.load_system_table' server.id %}", function(data) {
+        $.post("{% url 'load_system_table' server.id %}", function(data) {
             $( "#server_table" ).replaceWith( data.table_html );
         });
       }, 2000);
@@ -183,6 +183,7 @@
             new_opts.pointSize = 1.5;
             new_opts.strokeWidth = 1.;
         }
+        console.log(range);
         graph.updateOptions(new_opts);
     }
 

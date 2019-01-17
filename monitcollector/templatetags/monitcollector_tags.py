@@ -1,7 +1,7 @@
 from django import template
 from django.utils import timezone
 import time
-import settings
+from django.conf import settings
 register = template.Library()
 
 try:

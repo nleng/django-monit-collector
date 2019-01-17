@@ -16,9 +16,9 @@
 		</thead>
 		<tbody>
 		{%for server in servers %}
-			{#   onclick="document.location = '{% url "monitcollector.views.dashboard" %}';" #}
+			{#   onclick="document.location = '{% url "dashboard" %}';" #}
 			
-				<tr class="link" onclick="document.location = '{% url "monitcollector.views.server" server.id %}';">
+				<tr class="link" onclick="document.location = '{% url "server" server.id %}';">
 					<td>{{ server.localhostname }}</td>
 					<td>{{ server.address }}</td> 
 					<td>{{ server.monit_version }}</td>

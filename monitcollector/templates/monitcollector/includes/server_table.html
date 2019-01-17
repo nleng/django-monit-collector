@@ -15,7 +15,7 @@
     </thead>
     <tbody>
       {% for process in processes %}
-	<tr class="link" onclick="document.location = '{% url "monitcollector.views.process" server.id process.name %}';">
+	<tr class="link" onclick="document.location = '{% url "process" server.id process.name %}';">
 	  <td>{{ process.name }}</td>
 	  <td class="{{ process.status|status_class:process.monitor }}">{{ process.status|status_str:process.monitor }}</td> 
 	  <td>{{ process.uptime|time_str }}</td>

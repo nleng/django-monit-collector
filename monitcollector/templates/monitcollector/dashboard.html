@@ -9,7 +9,7 @@
 	django-monit-collector
 </h3>
 <p style="font-size:18px;">
-	Easy system montitoring
+	Easy system monitoring
 </p>
 {% endblock %}
 
@@ -30,7 +30,7 @@
 <script>
 $(document).ready(function () {
 	window.intervalId = setInterval(function() {
-	$.post("{% url 'monitcollector.views.load_dashboard_table' %}", function(data) {
+	$.post("{% url 'load_dashboard_table' %}", function(data) {
 	    $( "#dashboard_table" ).replaceWith( data.table_html );
 	});
 	}, 2000);

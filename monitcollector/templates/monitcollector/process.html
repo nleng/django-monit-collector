@@ -4,7 +4,7 @@
 
 
 {% block additinal_nav %}
-<li><a href="{% url 'monitcollector.views.server' server.id %}"> Server </a></li>
+<li><a href="{% url 'server' server.id %}"> Server </a></li>
 {% endblock %}
 
 {% block jumbotron %}
@@ -107,10 +107,10 @@
                     set_linewidth(graph_mem, data_mem); 
                 },
               });
-      set_linewidth(graph_mem, data_mem); 
+      set_linewidth(graph_mem, data_mem);
       // It sucks that these things aren't objects, and we need to store state in window.
       window.intervalId = setInterval(function() {
-            $.post("{% url 'monitcollector.views.load_process_data' server.id process.name %}", function(data) {
+            $.post("{% url 'load_process_data' server.id process.name %}", function(data) {
                 var date = new Date(JSON.parse(data.date)*1000.);
                 if (date>data_cpu[data_cpu.length-1][0]) {
                     data_cpu.push([date, JSON.parse(data.cpu_percenttotal)]);
@@ -123,7 +123,7 @@
             
       }, update_period);
       window.intervalId = setInterval(function() {
-        $.post("{% url 'monitcollector.views.load_process_table' server.id process.name %}", function(data) {
+        $.post("{% url 'load_process_table' server.id process.name %}", function(data) {
             $( "#process_table" ).replaceWith( data.table_html );
         });
       }, 2000);

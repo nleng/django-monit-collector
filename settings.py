@@ -30,7 +30,7 @@ NEVERCACHE_KEY = "-bD-gDbPUd85bD6xiIMRZ-U-2ShfnE-Vurbp1ox-lh7Rt85DeUeeLn-VDwfxy2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["monitcollector.cfs-me-research.net"]
+ALLOWED_HOSTS = []
 
 # update period in seconds. only used for the graphs in the frontend
 # should be the same as set in the monitrc file e.g. "set daemon 60"
@@ -82,6 +82,12 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'libraries':{
+                'i18n' : 'django.templatetags.i18n',
+                'static' : 'django.templatetags.static',
+                'staticfiles' : 'django.templatetags.static',
+                'monitcollector_tags' : 'monitcollector.templatetags.monitcollector_tags',
+            }
         },
     },
 ]

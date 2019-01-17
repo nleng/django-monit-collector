@@ -1,7 +1,7 @@
 <div  id="process_buttons" class="col-md-12 column">
 <h4> These buttons only show for the server, where the monitcollector app is running. </h4>
 <div class="col-md-3 column">
-<form method="POST" action="{% url 'monitcollector.views.process_action' server.id %}">
+<form method="POST" action="{% url 'process_action' server.id %}">
   {% csrf_token %}
   <input type="hidden" value="start" name="action">
   <input type="hidden" value="{{process.name}}" name="process">
@@ -9,7 +9,7 @@
 </form>
 </div>
 <div class="col-md-3 column">
-<form method="POST" action="{% url 'monitcollector.views.process_action' server.id %}">
+<form method="POST" action="{% url 'process_action' server.id %}">
   {% csrf_token %}
   <input type="hidden" value="stop" name="action">
   <input type="hidden" value="{{process.name}}" name="process">
@@ -17,7 +17,7 @@
 </form>
 </div>
 <div class="col-md-3 column">
-<form method="POST" action="{% url 'monitcollector.views.process_action' server.id %}">
+<form method="POST" action="{% url 'process_action' server.id %}">
   {% csrf_token %}
   <input type="hidden" value="restart" name="action">
   <input type="hidden" value="{{process.name}}" name="process">
@@ -25,7 +25,7 @@
 </form>
 </div>
 <div class="col-md-3 column">
-<form method="POST" action="{% url 'monitcollector.views.process_action' server.id %}">
+<form method="POST" action="{% url 'process_action' server.id %}">
   {% csrf_token %}
   <input type="hidden" value="{% if process.monitor == 0 %}monitor{% else %}unmonitor{% endif %}" name="action">
   <input type="hidden" value="{{process.name}}" name="process">

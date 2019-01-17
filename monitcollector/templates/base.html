@@ -19,7 +19,7 @@
 		<div class="container-fluid">
 			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 				<ul class="nav navbar-nav">
-					<li {% url 'monitcollector.views.dashboard' as url %}{% if request.path == url %} class="active" {% endif %}><a href="{% url 'monitcollector.views.dashboard' %}"> Dashboard </a></li>
+					<li {% url 'dashboard' as url %}{% if request.path == url %} class="active" {% endif %}><a href="{% url 'dashboard' %}"> Dashboard </a></li>
 					{% block additinal_nav %}{% endblock %}
 				</ul>
 			</div>

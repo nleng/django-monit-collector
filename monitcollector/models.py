@@ -265,7 +265,6 @@ class Process(Service):
 
 ########## who needs groups? ##########
 
-# service groups sind egal, da wird nur die tatsache gespeichert dass es diese gruppen gibt
 # for servicegroup in xmldoc.getElementsByTagName('servicegroups')[0].getElementsByTagName('servicegroup'):
 #   servicegroup_name = get_value(servicegroup, "", "", "name")
 #   for service in servicegroup.getElementsByTagName('service'):
