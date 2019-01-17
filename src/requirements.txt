@@ -1,4 +1,4 @@
-Django==1.8.17
+Django==1.11.18
 django-compressor
 psycopg2
 requests
