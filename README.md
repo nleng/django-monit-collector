@@ -40,9 +40,9 @@ MAXIMUM_STORE_DAYS = 7
 ```
 Include monitcollector in your url.py:
 ```
-import monitcollector
+import monitcollector.urls as m_urls
 
-url(r'^monitcollector/', include(monitcollector.urls)),
+url(r'^monitcollector/', include(m_urls)),
 ```
 Create/sync the database and create a superuser (you need to login to access the monit-collector dashboard):
 ```
